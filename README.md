@@ -1,84 +1,352 @@
 # InnovateMart-s-Inaugural-EKS-Deployment
-InnovateMart’s Inaugural EKS Deployment
-Company: InnovateMart Inc.
 
-Role: Cloud DevOps Engineer
+# Project Bedrock - Cloud Infrastructure & Application Platform
 
-Mission: “Project Bedrock” – Deploy our new microservices application to a production-grade Kubernetes environment on AWS.
+![Architecture Diagram](./docs/architecture-diagram.png)
 
-1. Introduction & Company Background
-Welcome to InnovateMart! We are a rapidly growing e-commerce startup that has recently secured Series A funding to scale our operations globally. Our engineering team has been hard at work breaking down our legacy monolithic application into a modern, scalable microservices architecture.
+## Overview
+Project Bedrock is a cloud-native application platform built on AWS, featuring automated infrastructure provisioning, Kubernetes orchestration, and CI/CD pipelines.
 
-As our newly hired Cloud DevOps Engineer, you are entrusted with a critical, high-impact mission: to lay the foundation for our cloud infrastructure by deploying the new Retail Store Application on Amazon Elastic Kubernetes Service (EKS). This project, codenamed “Project Bedrock,” is the cornerstone of our future expansion. Your success will directly impact our ability to deliver a world-class shopping experience to our customers.
+## Features
+- **Infrastructure as Code**: Terraform-managed AWS resources
+- **Kubernetes Cluster**: EKS with auto-scaling node groups
+- **Managed Database**: PostgreSQL RDS with high availability
+- **CI/CD Pipeline**: GitHub Actions for automated deployments
+- **Secure Networking**: VPC with public/private subnets
 
-2. Your Mission
-Your primary objective is to deploy the complete retail-store-sample-app to a new EKS cluster. You must automate the infrastructure setup and ensure the application is running, stable, and ready for the development team to access.
+## Quick Start
+```bash
+# 1. Clone repository
+git clone https://github.com/your-username/project-bedrock.git
+cd project-bedrock
 
-This is more than just a technical task; it’s about demonstrating your ability to think like a Cloud Engineer—prioritizing automation, security, and scalability from day one.
+# 2. Set up infrastructure
+cd infrastructure
+terraform init
+terraform apply
 
-3. Core Requirements (Mandatory)
-To successfully complete Project Bedrock, you must deliver the following:
+# 3. Deploy application
+cd ../kubernetes
+kubectl apply -f namespace.yaml
+kubectl apply -f app/
 
-3.1. Infrastructure as Code (IaC):
 
-Provision all necessary AWS resources using an IaC tool of your choice (Terraform is recommended, but CloudFormation or Pulumi are also acceptable).
-Your IaC code must create:
-A Virtual Private Cloud (VPC) with public and private subnets.
-An Amazon EKS cluster.
-The necessary IAM roles and policies for the EKS cluster and node groups.
-3.2. Application Deployment:
 
-Deploy the retail-store-sample-app to your EKS cluster.
-For this initial deployment, you must use the default in-cluster dependencies. This means the databases (MySQL, PostgreSQL, DynamoDB Local) and message brokers (Redis, RabbitMQ) will run as containers inside the EKS cluster.
-3.3. Developer Access:
+Architecture
+Frontend: NGINX/Application Load Balancer
 
-Create a new IAM user for our development team.
-This user must have read-only access to the resources within the EKS cluster. The goal is to allow developers to view logs, describe pods, and check service status without being able to make changes.
-Provide the necessary credentials and configuration instructions for this user.
-3.4. Automation with CI/CD:
+Backend: Kubernetes Deployment on EKS
 
-At InnovateMart, we “CI/CD everything.” You must create a CI/CD pipeline (e.g., using GitHub Actions) to automate the deployment of your Terraform infrastructure code.
-Your pipeline should be built around a sound branching strategy (e.g., GitFlow). For example, pushes to feature branches could trigger a terraform plan, while a merge to the main branch triggers a terraform apply.
-Ensure that AWS credentials are not hardcoded in the pipeline configuration and are managed securely.
-4. Bonus Objectives (Extra Marks)
-InnovateMart values engineers who go above and beyond. Completing these objectives will demonstrate your expertise in building truly production-ready systems and will be rewarded with bonus marks.
+Database: PostgreSQL RDS in private subnets
 
-4.1. Managed Persistence Layer:
+Networking: Multi-AZ VPC with NAT Gateway
 
-Instead of using the in-cluster databases, provision and configure managed AWS services for persistence.
-AWS RDS for PostgreSQL for the orders service.
-AWS RDS for MySQL for the catalog service.
-Amazon DynamoDB for the carts service.
-You will need to modify the Kubernetes ConfigMap and Secret manifests to point the microservices to these new AWS resources. Do not store database credentials in plain text in your Git repository.
-4.2. Advanced Networking & Security:
 
-Install and configure the AWS Load Balancer Controller in your EKS cluster.
-Create a Kubernetes Ingress resource to expose the ui service to the internet via an Application Load Balancer (ALB).
-Register a domain name (you can use a free service like freenom or just document the process with a placeholder) and configure it in Route 53 to point to the ALB.
-Provision an SSL certificate using AWS Certificate Manager (ACM) and attach it to the ALB to enable HTTPS.
-5. Deliverables
-Please submit a single document containing the following:
 
-Git Repository Link: A link to your public or private (with access provided) Git repository containing all your IaC code, CI/CD pipeline definitions, and any custom Kubernetes manifests.
-Deployment & Architecture Guide: A brief document (2 pages max) that includes:
-An overview of your architecture.
-Instructions on how a user can access the running application.
-The credentials and kubeconfig instructions for the read-only developer IAM user.
-If you attempted the bonus objectives, a detailed explanation of your implementation.
-6. Grading Rubric
-Your work will be evaluated based on the following criteria:
+Requirements
+Terraform >= 1.0
 
-Category	Task
-Core: Infrastructure	EKS Cluster and VPC provisioned correctly with IaC.
-IAM Roles and Policies are well-defined and follow least privilege.
-CI/CD pipeline automates Terraform deployment based on a branching strategy.
-Core: Application	All microservices are deployed and running successfully.
-Application uses the specified in-cluster dependencies.
-Core: Security	Read-only developer IAM user is created and configured correctly.
-Documentation	Git repository is well-organized with a clear README.
-The Deployment & Architecture guide is clear and comprehensive.
-Bonus: Persistence	RDS for PostgreSQL and MySQL are correctly provisioned and integrated.
-DynamoDB is correctly provisioned and integrated.
-Bonus: Networking	Ingress, ALB, and Domain are correctly configured.
-SSL/TLS is successfully implemented for secure access.
-Good luck, Engineer. We are excited to see what you build!
+kubectl >= 1.25
+
+AWS CLI >= 2.0
+
+GitHub Account (for CI/CD)
+
+
+Access Instructions
+Application URL: http://project-bedrock-dev-alb-123456.eu-west-1.elb.amazonaws.com
+
+Read-only Access:
+
+Kubernetes: Use provided kubeconfig
+
+Database: Connection string in Secrets Manager
+
+AWS: IAM user with read-only permissions
+
+
+
+
+## 2. `docs/architecture-guide.md`
+
+```markdown
+# Architecture Guide
+
+## System Overview
+Project Bedrock implements a three-tier architecture on AWS with complete infrastructure automation.
+
+## Components
+
+### 1. Networking (VPC)
+- **CIDR**: 10.0.0.0/16
+- **Public Subnets**: 10.0.1.0/24, 10.0.2.0/24, 10.0.3.0/24
+- **Private Subnets**: 10.0.101.0/24, 10.0.102.0/24, 10.0.103.0/24
+- **Database Subnets**: 10.0.201.0/24, 10.0.202.0/24, 10.0.203.0/24
+
+### 2. Compute (EKS Cluster)
+- **Kubernetes Version**: 1.28
+- **Node Group**: t3.medium/t3.large instances
+- **Auto-scaling**: 2-5 nodes
+- **Network Plugin**: AWS VPC CNI
+
+### 3. Database (RDS PostgreSQL)
+- **Engine**: PostgreSQL 15.7
+- **Instance**: db.t3.micro
+- **Storage**: 20GB GP2
+- **Backup**: 7-day retention
+
+### 4. Security
+- **IAM Roles**: Least privilege access
+- **Security Groups**: Application-specific rules
+- **Secrets Management**: AWS Secrets Manager
+- **Encryption**: AES-256 at rest, TLS in transit
+
+## Data Flow
+1. User → Application Load Balancer → EKS Ingress → Kubernetes Service → Pods → RDS Database
+
+## High Availability
+- Multi-AZ deployment (3 availability zones)
+- Auto-scaling node groups
+- Database backups and snapshots
+- Stateful resource redundancy
+
+docs/deployment-guide.md
+# Deployment Guide
+
+## Prerequisites
+- AWS Account with appropriate permissions
+- Terraform, kubectl, AWS CLI installed
+- GitHub repository fork
+
+## Phase 1: Infrastructure Setup
+
+### 1.1 Configure AWS Credentials
+```bash
+aws configure
+# AWS Access Key ID: [YOUR_ACCESS_KEY]
+# AWS Secret Access Key: [YOUR_SECRET_KEY]
+# Default region: eu-west-1
+
+
+
+Deploy Infrastructure
+cd infrastructure/
+terraform init
+terraform plan
+terraform apply  # Approve when prompted
+
+
+Save Outputs
+terraform output > ../outputs.txt
+
+Phase 2: Kubernetes Configuration
+2.1 Configure kubectl
+aws eks update-kubeconfig --region eu-west-1 --name project-bedrock-dev-cluster
+kubectl get nodes  # Verify connection
+
+Deploy Application
+cd ../kubernetes/
+kubectl apply -f namespace.yaml
+kubectl apply -f app/
+
+Verify Deployment
+kubectl get all -n project-bedrock
+kubectl get ingress -n project-bedrock
+
+Phase 3: CI/CD Setup
+3.1 Configure GitHub Secrets
+Add these secrets to your GitHub repository:
+
+AWS_ACCESS_KEY_ID
+
+AWS_SECRET_ACCESS_KEY
+
+KUBECONFIG_BASE64 (base64-encoded kubeconfig)
+
+3.2 Push to Trigger Deployment
+bash
+git add .
+git commit -m "Initial deployment"
+git push origin main
+Access Instructions
+Application Access
+URL: Check Load Balancer DNS name:
+
+bash
+kubectl get ingress -n project-bedrock
+Database Access
+Connection String:
+
+text
+postgresql://bedrockadmin:[PASSWORD]@[RDS_ENDPOINT]:5432/projectbedrock
+Get Credentials:
+
+bash
+# Database endpoint
+cd infrastructure/
+terraform output rds_instance_endpoint
+
+# Password (stored in Secrets Manager)
+aws secretsmanager get-secret-value --secret-id project-bedrock-dev-db-password
+Read-only Access
+Kubernetes Read-only Access
+bash
+# Download kubeconfig with read-only permissions
+aws eks update-kubeconfig --region eu-west-1 --name project-bedrock-dev-cluster --role-arn arn:aws:iam::[ACCOUNT_ID]:role/ReadOnlyRole
+
+# Test access
+kubectl get pods -n project-bedrock --as read-only-user
+Database Read-only User
+sql
+-- Connect to database and create read-only user
+CREATE USER read_only_user WITH PASSWORD 'secure_password';
+GRANT CONNECT ON DATABASE projectbedrock TO read_only_user;
+GRANT USAGE ON SCHEMA public TO read_only_user;
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO read_only_user;
+Troubleshooting
+Common Issues
+Terraform State Lock: Check DynamoDB table
+
+EKS Node Connection: Verify node group status
+
+Database Connection: Check security groups
+
+Ingress Not Working: Verify ALB configuration
+
+Logs and Monitoring
+bash
+# Application logs
+kubectl logs -n project-bedrock -l app=bedrock-app
+
+# Cluster events
+kubectl get events -n project-bedrock
+
+# Resource utilization
+kubectl top pods -n project-bedrock
+Cleanup
+bash
+cd infrastructure/
+terraform destroy  # Remove all resources
+text
+
+## 4. IAM Policies in `policies/` directory
+
+**A. `policies/eks-node-iam-policy.json`**
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ec2:DescribeInstances",
+        "ec2:DescribeRegions",
+        "ecr:GetAuthorizationToken",
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:GetRepositoryPolicy",
+        "ecr:DescribeRepositories",
+        "ecr:ListImages",
+        "ecr:BatchGetImage"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+B. policies/rds-access-policy.json
+
+json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "rds:DescribeDBInstances",
+        "rds:DescribeDBClusters",
+        "rds:DownloadDBLogFilePortion",
+        "rds:ListTagsForResource"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+C. policies/s3-state-policy.json
+
+json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetObject",
+        "s3:ListBucket",
+        "s3:GetBucketLocation"
+      ],
+      "Resource": [
+        "arn:aws:s3:::project-bedrock-dev-tfstate-*",
+        "arn:aws:s3:::project-bedrock-dev-tfstate-*/*"
+      ]
+    }
+  ]
+}
+5. Create the directory structure and files
+bash
+# Create directories
+mkdir -p docs policies
+
+# Create README
+cat > README.md << 'EOF'
+[PASTE README CONTENT HERE]
+EOF
+
+# Create architecture guide
+cat > docs/architecture-guide.md << 'EOF'
+[PASTE ARCHITECTURE GUIDE CONTENT HERE]
+EOF
+
+# Create deployment guide
+cat > docs/deployment-guide.md << 'EOF'
+[PASTE DEPLOYMENT GUIDE CONTENT HERE]
+EOF
+
+# Create IAM policies
+cat > policies/eks-node-iam-policy.json << 'EOF'
+[PASTE IAM POLICY CONTENT HERE]
+EOF
+
+# Create architecture diagram placeholder
+touch docs/architecture-diagram.png
+6. Final Steps
+Create GitHub repository:
+
+bash
+git init
+git add .
+git commit -m "Initial commit: Project Bedrock infrastructure and documentation"
+git branch -M main
+git remote add origin https://github.com/your-username/project-bedrock.git
+git push -u origin main
+Create architecture diagram (you can use tools like draw.io, Lucidchart, or even ASCII):
+
+text
++----------------+      +----------------+      +---------------+
+|   Internet     |----->|   ALB (80/443) |----->|   EKS Cluster |
++----------------+      +----------------+      +---------------+
+                                                       |
+                                                       v
+                                            +-------------------+
+                                            |   RDS PostgreSQL  |
+                                            +-------------------+
+Update with actual values from your Terraform outputs:
+
+ALB DNS name
+
+RDS endpoint
+
+EKS cluster name
+
+This documentation provides a complete professional package for your cloudlaunch assignment with clear instructions, architecture overview, and access guidelines.
+
+
